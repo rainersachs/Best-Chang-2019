@@ -227,15 +227,15 @@ LET_vals <- c(25, 70, 100, 193, 250, 464, 953)
 d11 <- c(0.1 * 0:9, 1:50)
 
 # We begin with the correlated plot
-corr_fig_11 <- simulate_monte_carlo(n = 500, d11, LET_vals, ratios, model = "NTE")
+#corr_fig_11 <- simulate_monte_carlo(n = 500, d11, LET_vals, ratios, model = "NTE")
 # Comments for Fig. 10 apply with minor changes here and in some other lines
 # We now calculate the uncorrelated Monte Carlo
 uncorr_fig_11 <- simulate_monte_carlo(n = 500, d11, LET_vals, ratios, model = "NTE", vcov = FALSE)
 
 ci_data <- data.frame(dose = d11,
                        # Monte Carlo values
-                       corrBottom = corr_fig_11$monte_carlo[1, ],
-                       corrTop = corr_fig_11$monte_carlo[2, ],
+                      # corrBottom = corr_fig_11$monte_carlo[1, ],
+                      # corrTop = corr_fig_11$monte_carlo[2, ],
                        uncorrBottom = uncorr_fig_11$monte_carlo[1, ],
                        uncorrTop = uncorr_fig_11$monte_carlo[2, ],
 
@@ -254,8 +254,8 @@ plot(c(0, 50), c(0, .40), col = "white", bty = 'u', ann = FALSE) # Next is broad
 polygon(x = c(d11, rev(d11)), y = c(ci_data[, "uncorrTop"], rev(ci_data[, "uncorrBottom"])),
         xpd = -1, col = "orange", lwd = .5, border = "orange") # Wide CI
 
-polygon(x = c(d11, rev(d11)), y = c(ci_data[, "corrTop"], rev(ci_data[, "corrBottom"])),
-        xpd = -1, col = "yellow", border = "orange", lwd = .2) # Narrow CI
+#polygon(x = c(d11, rev(d11)), y = c(ci_data[, "corrTop"], rev(ci_data[, "corrBottom"])),
+        #xpd = -1, col = "yellow", border = "orange", lwd = .2) # Narrow CI
 
 lines(ci_data[, "dose"], ci_data[, "fe_three"], col = 'black', lwd = 2)
 # One-ion DERs were later cut off at their maximum dose by using the Adobe Illustrator app.

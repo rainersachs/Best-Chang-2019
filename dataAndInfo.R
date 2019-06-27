@@ -54,8 +54,11 @@ rm(list=ls()) # To be removed when script is finalized
 # additions and perhaps corrections come up) should be all we need.
 
 ion_data <- data.frame(read.csv("raw_data_ordered.csv")) 
+new_ion_data <- data.frame(read.csv("new_ion.csv"))
+ion_data <- rbind(ion_data, new_ion_data)                           #names = c("dose", "Z", "LET", "tum",
+                                                                   # "atRisk", "Prev", "SD", "NWeight"), "Beam")
 #mixt_data <- data.frame(read.csv("mix_data.csv"))#  don't use 
-
+#
 # The following, which shows how to compute ion speed and the Katz amorphous track structure parameter,
 # may be used for adding Cucinotta's models in 16 Chang to our scripts and comparing them to our more parsimonious models.
 # GeVu is kinetic energy per atomic mass unit. An example for 670Ne20 is GeVu =10^-3*670.

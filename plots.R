@@ -220,10 +220,10 @@ lines(ci_data[, "dose"], ci_data[, "i"], col = 'red', lwd = 3) # I(d)
 #===========================================================#
 #=== Fig. 11. Correlated vs Uncorrelated CI Overlay Plot====#
 #===========================================================#
-# Consists of all 7 HZE ions in our 5/20/2018 data set.
+# Consists of all 8 HZE ions in our 3/31/2019 data set.
 # Declare ratios and LET values for plot
-ratios <- c(1/7, 1/7, 1/7, 1/7, 1/7, 1/7, 1/7)
-LET_vals <- c(25, 70, 100, 193, 250, 464, 953)
+ratios <- rep(1/8,8)
+LET_vals <- c(20, 25, 70, 100, 193, 250, 464, 953)
 d11 <- c(0.1 * 0:9, 1:50)
 
 # We begin with the correlated plot
@@ -240,7 +240,8 @@ ci_data <- data.frame(dose = d11,
                        uncorrTop = uncorr_fig_11$monte_carlo[2, ],
 
                        # DER values
-                       ne = calibrated_HZE_nte_der(dose = d11, L = 25),
+                      o = calibrated_HZE_nte_der(dose = d11, L = 20),
+                      ne = calibrated_HZE_nte_der(dose = d11, L = 25),
                        si = calibrated_HZE_nte_der(dose = d11, L = 70),
                        ti = calibrated_HZE_nte_der(dose = d11, L = 100),
                        fe_six = calibrated_HZE_nte_der(dose = d11, L = 193),

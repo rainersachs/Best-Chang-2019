@@ -26,7 +26,8 @@ library(deSolve) # Solving differential equations.
 
 phi <- 2000 # even larger phi should give the same final results, 
             # but might cause extra problems with R. 
-
+Y_0 <- 0.0464
+print (Y_0)
 #================================ DER MODELS ==================================#
 
 #================ PHOTON MODEL =================#
@@ -40,10 +41,10 @@ phi <- 2000 # even larger phi should give the same final results,
 #=============== HZE/NTE MODEL =================#
 # (HZE = high charge and energy; 
 #  NTE = non-targeted effects are included in addition to TE)
-HZE_data <- ion_data[13:47, ] # Includes 1-ion data iff Z > 3
+HZE_data <- ion_data[13:52, ] # Includes 1-ion data iff Z > 3
 # Uses 3 adjustable parameters. 
 HZE_nte_model <- nls( # Calibrating parameters in a model that modifies the hazard function NTE models in 17Cuc. 
-  Prev ~ .0464 + (1 - exp ( - (aa1 * LET * dose * exp( - aa2 * LET) 
+  Prev ~ Y_0 + (1 - exp ( - (aa1 * LET * dose * exp( - aa2 * LET) 
                                + (1 - exp( - phi * dose)) * kk1))), 
   data = HZE_data, 
   weights = NWeight,
@@ -69,7 +70,7 @@ calibrated_HZE_nte_der <- function(dose, LET, coef = HZE_nte_model_coef) { # Cal
 # We will not use it in the minor paper, only for later papers.
 
 HZE_te_model <- nls( # Calibrating parameters in a TE only model.
-  Prev ~ .0464 + (1 - exp ( - (aate1 * LET * dose * exp( - aate2 * LET)))),
+  Prev ~ Y_0 + (1 - exp ( - (aate1 * LET * dose * exp( - aate2 * LET)))),
   data = HZE_data,
   weights = NWeight,
   start = list(aate1 = .00009, aate2 = .01))
@@ -90,7 +91,7 @@ calibrated_HZE_te_der <- function(dose, LET, coef = HZE_te_model_coef) {
 #==== LIGHT ION, LOW Z (<= 3), LOW LET MODEL ===#
 low_LET_data = ion_data[1:12, ] # Swift protons and alpha particles.
 low_LET_model <- nls(
-  Prev ~ .0464 + 1 - exp( - alpha_low * dose), # alpha is used throughout radiobiology for dose coefficients.
+  Prev ~ Y_0 + 1 - exp( - alpha_low * dose), # alpha is used throughout radiobiology for dose coefficients.
   data = low_LET_data,
   weights = NWeight,
   start = list(alpha_low = .005))

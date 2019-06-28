@@ -9,15 +9,15 @@
 # Contact:      Rainer K. Sachs 
 # Website:      https://github.com/sachsURAP/NASAmouseHG
 # Mod history:  18 Jun 2018
-# Details:      See dataAndInfo.R for further licensing, attribution,
+# Details:      See data_info.R for further licensing, attribution,
 #               references, and abbreviation information.
 
-source("dataAndInfo.R") # Load in the data. Remark: dose is in units of cGy; 
+source("data_info.R") # Load in the data. Remark: dose is in units of cGy; 
 # LET usually in keV/micron; prevalence Prev always < 1
 # (i.e. not in %, which would mean prevalence < 100 but is strongly deprecated).
 
 library(deSolve) # Solving differential equations.
-
+library(dplyr)
 #========================= MISC. OBJECTS & VARIABLES ==========================#
 # In next line phi controls how fast NTE build up from zero; not really needed 
 # during calibration since phi * Dose >> 1 at every observed Dose !=0. phi is
@@ -40,8 +40,10 @@ print (Y_0)
 
 #=============== HZE/NTE MODEL =================#
 # (HZE = high charge and energy; 
-#  NTE = non-targeted effects are included in addition to TE)
-HZE_data <- ion_data[13:52, ] # Includes 1-ion data iff Z > 3
+# select(filter(HZE_data, Beam == "O")
+# NTE = non-targeted effects are included in addition to TE)
+# HZE_data <- ion_data[c(13:47,49:52), ] # Includes 1-ion data iff Z > 3 
+HZE_data <- select(filter(ion_data, Z > 3),1:length(ion_data[2,]))
 # Uses 3 adjustable parameters. 
 HZE_nte_model <- nls( # Calibrating parameters in a model that modifies the hazard function NTE models in 17Cuc. 
   Prev ~ Y_0 + (1 - exp ( - (aa1 * LET * dose * exp( - aa2 * LET) 
@@ -67,7 +69,6 @@ calibrated_HZE_nte_der <- function(dose, LET, coef = HZE_nte_model_coef) { # Cal
 
 #================ HZE/TE MODEL =================#
 # (TE = targeted effects only). This chunk runs and gives good results. 
-# We will not use it in the minor paper, only for later papers.
 
 HZE_te_model <- nls( # Calibrating parameters in a TE only model.
   Prev ~ Y_0 + (1 - exp ( - (aate1 * LET * dose * exp( - aate2 * LET)))),
@@ -89,7 +90,7 @@ calibrated_HZE_te_der <- function(dose, LET, coef = HZE_te_model_coef) {
 }
 
 #==== LIGHT ION, LOW Z (<= 3), LOW LET MODEL ===#
-low_LET_data = ion_data[1:12, ] # Swift protons and alpha particles.
+low_LET_data = ion_data[c(1:12,48), ] # Swift protons and alpha particles. RKS to RKS: need to add extra proton point
 low_LET_model <- nls(
   Prev ~ Y_0 + 1 - exp( - alpha_low * dose), # alpha is used throughout radiobiology for dose coefficients.
   data = low_LET_data,
@@ -115,8 +116,27 @@ info_crit_table <- cbind(AIC(HZE_te_model, HZE_nte_model),
                          BIC(HZE_te_model, HZE_nte_model))
 print(info_crit_table)
 
+##=================== Cross validation ====================##
+## ====== Needs lots of work. Idea starts as follows ======##
+# Seperate Data into 8 blocks, i.e. test/training sets:
+# data_len <- 1:length(HZE_data)
+# O_350 <- select(filter(HZE_data, Beam == "O"), data_len) #RKS added 3 oxygen points 5/17/2019)
+# Ne_670 <- select(filter(HZE_data, Beam == "Ne"), data_len)
+# Si_260 <- select(filter(HZE_data, Beam == "Si"), data_len)
+# Ti_1000 <- select(filter(HZE_data, Beam == "Ti"), data_len)
+# Fe_600 <- select(filter(HZE_data, LET == 193), data_len)
+# Fe_350 <- select(filter(HZE_data, LET == 253), data_len)
+# Nb_600 <- select(filter(HZE_data, Beam == "Nb"), data_len)
+# La_593 <- select(filter(HZE_data, Beam == "La"), data_len)
+# ions <- list(O_350, Ne_670, Si_260, Ti_1000,
+#                  Fe_600, Fe_350, Nb_600, La_593)
+# actual_prev <- HZE_data$Prev
+## == Rprojects/Auxiliary_files gives toy calculation of completion == ##
+## ======= also see, e.g., R_projects/Old_projects/Chang_2019 ======== ##
+## === But there it is inextricably tangled up with CRAN examples ==== ##
 
-#=========== BASELINE NO-SYNERGY/ANTAGONISM MIXTURE DER FUNCTIONS =============#
+
+## ===== BASELINE NO-SYNERGY/ANTAGONISM MIXTURE DER FUNCTIONS ======== ##
 
 #======== SIMPLE EFFECT ADDITIVITY (SEA) =======#
 
